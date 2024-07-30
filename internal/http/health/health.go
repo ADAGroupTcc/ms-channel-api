@@ -3,7 +3,7 @@ package health
 import (
 	"net/http"
 
-	healthService "github.com/ADAGroupTcc/ms-users-api/internal/services/health"
+	healthService "github.com/ADAGroupTcc/ms-channels-api/internal/services/health"
 	"github.com/labstack/echo/v4"
 )
 

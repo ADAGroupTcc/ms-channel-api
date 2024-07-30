@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/ADAGroupTcc/ms-users-api/exceptions"
+	"github.com/ADAGroupTcc/ms-channels-api/exceptions"
 	"github.com/labstack/echo/v4"
 )
 

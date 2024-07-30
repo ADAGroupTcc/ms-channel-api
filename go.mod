@@ -1,4 +1,4 @@
-module github.com/ADAGroupTcc/ms-users-api
+module github.com/ADAGroupTcc/ms-channels-api
 
 go 1.21
 

@@ -3,7 +3,7 @@ package healthService
 import (
 	"context"
 
-	"github.com/ADAGroupTcc/ms-users-api/internal/services/health/domain"
+	"github.com/ADAGroupTcc/ms-channels-api/internal/services/health/domain"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

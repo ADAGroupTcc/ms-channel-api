@@ -1,15 +1,24 @@
 package exceptions
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type ErrorResponse struct {
-	Code    int    `json:"code"`
+	Code    int    `json:"code,omitempty"`
 	Message string `json:"message"`
 }
 
 func HandleExceptions(err error) ErrorResponse {
 	customErr, ok := err.(*Error)
 	if !ok {
+		fmt.Println(err.Error())
+		if err.Error() == "code=404, message=Not Found" {
+			return ErrorResponse{
+				Message: "Not Found",
+			}
+		}
 		return ErrorResponse{
 			Code:    500,
 			Message: "Internal server error",
@@ -17,7 +26,7 @@ func HandleExceptions(err error) ErrorResponse {
 	}
 
 	switch customErr.Err {
-	case ErrUserNotFound:
+	case ErrChannelNotFound:
 		return ErrorResponse{
 			Code:    http.StatusNotFound,
 			Message: customErr.Err.Error(),
@@ -28,13 +37,12 @@ func HandleExceptions(err error) ErrorResponse {
 			Message: customErr.Err.Error(),
 		}
 	case
-		ErrInvalidFirstName,
-		ErrInvalidLastName,
-		ErrInvalidEmail,
-		ErrInvalidCPF,
-		ErrInvalidCategories,
-		ErrUserAlreadyExists,
-		ErrInvalidID:
+		ErrChannelAlreadyExists,
+		ErrInvalidID,
+		ErrInvalidNameField,
+		ErrInvalidMembersField,
+		ErrInvalidAdminsField,
+		ErrInvalidUserIdSent:
 		return ErrorResponse{
 			Code:    http.StatusBadRequest,
 			Message: customErr.Err.Error(),

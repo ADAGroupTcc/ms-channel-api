@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	"github.com/ADAGroupTcc/ms-users-api/config"
-	"github.com/ADAGroupTcc/ms-users-api/internal/http/router"
+	"github.com/ADAGroupTcc/ms-channels-api/config"
+	"github.com/ADAGroupTcc/ms-channels-api/internal/http/router"
 )
 
 func main() {
