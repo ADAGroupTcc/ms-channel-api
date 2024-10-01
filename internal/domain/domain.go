@@ -119,35 +119,41 @@ func (r *ChannelPatchRequest) Validate() error {
 	}
 
 	var err error
-
-	for _, member := range *r.Members {
-		err = ValidateUserId(member)
+	members := r.Members
+	admins := r.Admins
+	if members != nil {
+		for _, member := range *r.Members {
+			err = ValidateUserId(member)
+		}
 	}
 
-	for _, admin := range *r.Admins {
-		err = ValidateUserId(admin)
+	if admins != nil {
+		for _, admin := range *r.Admins {
+			err = ValidateUserId(admin)
+		}
 	}
 
 	return err
 }
 
 func (r *ChannelPatchRequest) ToBsonM() bson.M {
-	response := bson.M{}
+	fields := bson.M{}
 	if r.Name != nil {
-		response["name"] = *r.Name
+		fields["name"] = *r.Name
 	}
 	if r.Description != nil {
-		response["description"] = *r.Description
+		fields["description"] = *r.Description
 	}
 	if r.Members != nil {
 		parsedMembers, _ := ParseUserIds(*r.Members)
-		response["members"] = parsedMembers
+		fields["members"] = parsedMembers
 	}
 	if r.Admins != nil {
 		parsedAdmins, _ := ParseUserIds(*r.Admins)
-		response["admins"] = parsedAdmins
+		fields["admins"] = parsedAdmins
 	}
 
+	response := bson.M{"$set": fields}
 	return response
 }
 
