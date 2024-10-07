@@ -66,4 +66,4 @@ jobs:
     steps:
       - name: Trigger Render Deployment
         run: |
-          curl -L "${{ secrets.RENDER_ }}"
+          curl -L "${{ secrets.RENDER_TRIGGER_URL }}"
