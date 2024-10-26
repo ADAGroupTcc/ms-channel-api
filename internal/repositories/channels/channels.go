@@ -18,7 +18,7 @@ const CHANNEL_COLLECTION = "channels"
 type Repository interface {
 	Create(ctx context.Context, Channel *domain.Channel) (*domain.Channel, error)
 	Get(ctx context.Context, id primitive.ObjectID) (*domain.Channel, error)
-	List(ctx context.Context, channelIds []primitive.ObjectID, userIds []primitive.ObjectID, limit int64, offset int64) ([]*domain.Channel, error)
+	List(ctx context.Context, channelIds []primitive.ObjectID, userIds []primitive.ObjectID, headerUserId primitive.ObjectID, limit int64, offset int64) ([]*domain.Channel, error)
 	Update(ctx context.Context, id primitive.ObjectID, fields bson.M) error
 	Delete(ctx context.Context, id primitive.ObjectID) error
 }
@@ -60,7 +60,7 @@ func (h *ChannelRepository) Get(ctx context.Context, id primitive.ObjectID) (*do
 	return Channel, nil
 }
 
-func (h *ChannelRepository) List(ctx context.Context, channelIds []primitive.ObjectID, userIds []primitive.ObjectID, limit int64, offset int64) ([]*domain.Channel, error) {
+func (h *ChannelRepository) List(ctx context.Context, channelIds []primitive.ObjectID, userIds []primitive.ObjectID, headerUserId primitive.ObjectID, limit int64, offset int64) ([]*domain.Channel, error) {
 	var channels []*domain.Channel = make([]*domain.Channel, 0)
 	var filter bson.M
 	if len(channelIds) > 0 {
@@ -71,6 +71,12 @@ func (h *ChannelRepository) List(ctx context.Context, channelIds []primitive.Obj
 			filter = bson.M{"members": bson.M{"$all": userIds}}
 		} else {
 			filter["members"] = bson.M{"$all": userIds}
+		}
+	} else {
+		if filter == nil {
+			filter = bson.M{"members": headerUserId}
+		} else {
+			filter["members"] = headerUserId
 		}
 	}
 	err := mongorm.List(ctx, h.db, CHANNEL_COLLECTION, filter, &channels, options.Find().SetLimit(limit).SetSkip(offset*limit))

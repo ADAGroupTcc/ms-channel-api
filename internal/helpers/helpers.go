@@ -3,6 +3,7 @@ package helpers
 import (
 	"strings"
 
+	"github.com/ADAGroupTcc/ms-channels-api/exceptions"
 	"github.com/labstack/echo/v4"
 )
 
@@ -10,6 +11,11 @@ func BindQueryParams(c echo.Context, queryParams *QueryParams) error {
 	if err := c.Bind(queryParams); err != nil {
 		return err
 	}
+	queryParams.HeaderUserId = c.Request().Header.Get("user_id")
+	if queryParams.HeaderUserId == "" {
+		return exceptions.ErrHeaderUserIdIsReq
+	}
+
 	queryParams.normalize()
 	return nil
 }
@@ -17,6 +23,7 @@ func BindQueryParams(c echo.Context, queryParams *QueryParams) error {
 type QueryParams struct {
 	RawChannelIds string `json:"channel_ids" query:"channel_ids"`
 	RawUserIds    string `json:"user_ids" query:"user_ids"`
+	HeaderUserId  string
 	ChannelIDs    []string
 	UserIds       []string
 	Limit         int64 `json:"limit" query:"limit"`

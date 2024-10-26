@@ -17,7 +17,7 @@ var (
 	ErrInvalidID            = fmt.Errorf("%s: invalid ID", prefix)
 	ErrInvalidUserIdSent    = fmt.Errorf("%s: invalid user ID sent", prefix)
 	ErrNoFieldsToUpdate     = fmt.Errorf("%s: no fields to update", prefix)
-
+	ErrHeaderUserIdIsReq    = fmt.Errorf("%s: header user ID is required", prefix)
 	// Database related errors
 	ErrChannelNotFound = fmt.Errorf("%s: channel not found", prefix)
 	ErrDatabaseFailure = fmt.Errorf("%s: database failure", prefix)

@@ -42,6 +42,7 @@ func HandleExceptions(err error) ErrorResponse {
 		ErrInvalidNameField,
 		ErrInvalidMembersField,
 		ErrInvalidAdminsField,
+		ErrHeaderUserIdIsReq,
 		ErrInvalidUserIdSent:
 		return ErrorResponse{
 			Code:    http.StatusBadRequest,

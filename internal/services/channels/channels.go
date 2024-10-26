@@ -57,7 +57,12 @@ func (h *ChannelService) List(ctx context.Context, queryParams helpers.QueryPara
 		return nil, err
 	}
 
-	channels, err := h.channelRepository.List(ctx, parsedChannelIds, parsedUserIds, queryParams.Limit, queryParams.Offset)
+	parsedHeaderUserId, err := primitive.ObjectIDFromHex(queryParams.HeaderUserId)
+	if err != nil {
+		return nil, err
+	}
+
+	channels, err := h.channelRepository.List(ctx, parsedChannelIds, parsedUserIds, parsedHeaderUserId, queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		return nil, err
 	}
