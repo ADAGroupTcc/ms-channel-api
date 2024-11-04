@@ -13,12 +13,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const CHANNEL_COLLECTION = "channels"
+const (
+	CHANNEL_COLLECTION = "channels"
+	USER_COLLECTION    = "users"
+)
 
 type Repository interface {
 	Create(ctx context.Context, Channel *domain.Channel) (*domain.Channel, error)
 	Get(ctx context.Context, id primitive.ObjectID) (*domain.Channel, error)
 	List(ctx context.Context, channelIds []primitive.ObjectID, userIds []primitive.ObjectID, headerUserId primitive.ObjectID, limit int64, offset int64) ([]*domain.Channel, error)
+	Aggregate(ctx context.Context, userIds []primitive.ObjectID, headerUserId primitive.ObjectID) ([]*domain.ChannelWithMembers, error)
 	Update(ctx context.Context, id primitive.ObjectID, fields bson.M) error
 	Delete(ctx context.Context, id primitive.ObjectID) error
 }
@@ -86,6 +90,43 @@ func (h *ChannelRepository) List(ctx context.Context, channelIds []primitive.Obj
 		}
 		return nil, exceptions.New(exceptions.ErrDatabaseFailure, err)
 	}
+	return channels, nil
+}
+
+func (h *ChannelRepository) Aggregate(ctx context.Context, userIds []primitive.ObjectID, headerUserId primitive.ObjectID) ([]*domain.ChannelWithMembers, error) {
+	var channels []*domain.ChannelWithMembers = make([]*domain.ChannelWithMembers, 0)
+	var filter bson.M = bson.M{}
+
+	if len(userIds) > 0 {
+		filter["members"] = bson.M{"$in": userIds}
+	} else {
+		filter["members"] = headerUserId
+	}
+
+	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: filter}},
+		{{Key: "$lookup", Value: bson.M{
+			"from":         USER_COLLECTION,
+			"localField":   "members",
+			"foreignField": "_id",
+			"as":           "members",
+		}}},
+		{{Key: "$lookup", Value: bson.M{
+			"from":         USER_COLLECTION,
+			"localField":   "admins",
+			"foreignField": "_id",
+			"as":           "admins",
+		}}},
+	}
+
+	err := mongorm.Aggregate(ctx, h.db, CHANNEL_COLLECTION, pipeline, &channels)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return channels, nil
+		}
+		return nil, exceptions.New(exceptions.ErrDatabaseFailure, err)
+	}
+
 	return channels, nil
 }
 

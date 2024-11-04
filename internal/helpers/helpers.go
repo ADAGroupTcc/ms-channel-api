@@ -21,13 +21,14 @@ func BindQueryParams(c echo.Context, queryParams *QueryParams) error {
 }
 
 type QueryParams struct {
-	RawChannelIds string `json:"channel_ids" query:"channel_ids"`
-	RawUserIds    string `json:"user_ids" query:"user_ids"`
+	RawChannelIds string `query:"channel_ids"`
+	RawUserIds    string `query:"user_ids"`
+	ShowMembers   bool   `query:"show_members"`
 	HeaderUserId  string
 	ChannelIDs    []string
 	UserIds       []string
-	Limit         int64 `json:"limit" query:"limit"`
-	Offset        int64 `json:"next_page" query:"next_page"`
+	Limit         int64 `query:"limit"`
+	Offset        int64 `query:"next_page"`
 }
 
 func (q *QueryParams) normalize() {

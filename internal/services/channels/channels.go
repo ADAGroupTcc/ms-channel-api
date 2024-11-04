@@ -48,10 +48,6 @@ func (h *ChannelService) Get(ctx context.Context, id string) (*domain.Channel, e
 }
 
 func (h *ChannelService) List(ctx context.Context, queryParams helpers.QueryParams) (*domain.ChannelResponse, error) {
-	parsedChannelIds, err := h.parseObjectIdFromString(queryParams.ChannelIDs)
-	if err != nil {
-		return nil, err
-	}
 	parsedUserIds, err := h.parseObjectIdFromString(queryParams.UserIds)
 	if err != nil {
 		return nil, err
@@ -62,16 +58,30 @@ func (h *ChannelService) List(ctx context.Context, queryParams helpers.QueryPara
 		return nil, err
 	}
 
-	channels, err := h.channelRepository.List(ctx, parsedChannelIds, parsedUserIds, parsedHeaderUserId, queryParams.Limit, queryParams.Offset)
-	if err != nil {
-		return nil, err
+	var channels domain.ChannelResponseGeneral
+
+	if queryParams.ShowMembers {
+		channels, err = h.channelRepository.Aggregate(ctx, parsedUserIds, parsedHeaderUserId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		parsedChannelIds, err := h.parseObjectIdFromString(queryParams.ChannelIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		channels, err = h.channelRepository.List(ctx, parsedChannelIds, parsedUserIds, parsedHeaderUserId, queryParams.Limit, queryParams.Offset)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	response := &domain.ChannelResponse{
 		Channels: channels,
 	}
 
-	if len(channels) > 0 {
+	if channelsParsed, ok := channels.([]interface{}); ok && len(channelsParsed) == int(queryParams.Limit) {
 		response.NextPage = queryParams.Offset + 1
 	}
 

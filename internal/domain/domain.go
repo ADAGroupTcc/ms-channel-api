@@ -8,9 +8,24 @@ import (
 )
 
 type ChannelResponse struct {
-	Channels []*Channel `json:"channels"`
-	NextPage int64      `json:"next_page,omitempty"`
+	Channels ChannelResponseGeneral `json:"channels"`
+	NextPage int64                  `json:"next_page,omitempty"`
 }
+
+type User struct {
+	mongorm.Model `bson:",inline"`
+	FirstName     string               `json:"first_name" bson:"first_name"`
+	LastName      string               `json:"last_name" bson:"last_name"`
+	Description   string               `json:"description,omitempty" bson:"description"`
+	Nickname      string               `json:"nickname" bson:"nickname"`
+	Email         string               `json:"email" bson:"email"`
+	CPF           string               `json:"cpf" bson:"cpf"`
+	Location      []float64            `json:"location" bson:"location"`
+	Categories    []primitive.ObjectID `json:"categories" bson:"categories"`
+	IsDenunciated bool                 `json:"is_denunciated" bson:"is_denunciated"`
+}
+
+type ChannelResponseGeneral interface{}
 
 type Channel struct {
 	mongorm.Model `bson:",inline"`
@@ -18,6 +33,12 @@ type Channel struct {
 	Description   string               `json:"description" bson:"description"`
 	Members       []primitive.ObjectID `json:"members" bson:"members"`
 	Admins        []primitive.ObjectID `json:"admins" bson:"admins"`
+}
+
+type ChannelWithMembers struct {
+	Channel `bson:",inline"`
+	Members []*User `json:"members" bson:"members"`
+	Admins  []*User `json:"admins" bson:"admins"`
 }
 
 type ChannelRequest struct {
